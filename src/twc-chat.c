@@ -303,7 +303,7 @@ void
 twc_chat_send_message(struct t_twc_chat *chat, const char *message,
                       TOX_MESSAGE_TYPE message_type)
 {
-    TOX_ERR_CONFERENCE_SEND_MESSAGE err = TOX_ERR_CONFERENCE_SEND_MESSAGE_OK;
+    Tox_Err_Conference_Send_Message err = TOX_ERR_CONFERENCE_SEND_MESSAGE_OK;
     if (chat->friend_number >= 0)
     {
         twc_message_queue_add_friend_message(chat->profile, chat->friend_number,

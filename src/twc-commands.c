@@ -31,7 +31,7 @@
 #include "twc-chat.h"
 #include "twc-config.h"
 #include "twc-friend-request.h"
-#include "twc-group-invite.h"
+#include "twc-conf-invite.h"
 #include "twc-list.h"
 #include "twc-profile.h"
 #include "twc-tfer.h"
@@ -215,8 +215,9 @@ twc_cmd_bootstrap(const void *pointer, void *data, struct t_gui_buffer *buffer,
     TWC_CHECK_PROFILE_LOADED(profile);
 
     /* /bootstrap connect <address> <port> <key> */
-    if (argc == 5 && weechat_strcasecmp(argv[1], "connect") == 0)
+    if (argc > 1 && weechat_strcasecmp(argv[1], "connect") == 0)
     {
+      if (argc > 4 && strlen(argv[2]) > 0) {
         char *address = argv[2];
         uint16_t port = atoi(argv[3]);
         char *public_key = argv[4];
@@ -227,8 +228,68 @@ twc_cmd_bootstrap(const void *pointer, void *data, struct t_gui_buffer *buffer,
                            "%sBootstrap could not open address \"%s\"",
                            weechat_prefix("error"), address);
         }
+      } else if (argc > 2 && strlen(argv[2]) > 0) {
+	if (weechat_strcasecmp(argv[2], "0") == 0) {
+	  TOX_CONNECTION status;
+	  status = tox_self_get_connection_status(profile->tox);
+	  if ( status == TOX_CONNECTION_NONE) {
+            weechat_printf(profile->buffer,
+                           "%sBootstrap connected.",
+                           weechat_prefix("network"));
+	  } else {
+            weechat_printf(profile->buffer,
+                           "%sBootstrap not connected.",
+                           weechat_prefix("network"));
+	  }
+	}
+      } else {
+        if (!twc_bootstrap_random_node(profile->tox))
+        {
+            weechat_printf(profile->buffer,
+                           "%sBootstrap could not open random DHT",
+                           weechat_prefix("error"));
+        }
+      };
+      return WEECHAT_RC_OK;
+    }
 
-        return WEECHAT_RC_OK;
+    /* /bootstrap relay <address> <port> <key> */
+    if (argc > 1 && weechat_strcasecmp(argv[1], "relay") == 0)
+    {
+      if (argc > 4 && strlen(argv[2]) > 0) {
+        char *address = argv[2];
+        uint16_t port = atoi(argv[3]);
+        char *public_key = argv[4];
+
+        if (!twc_bootstrap_relay(profile->tox, address, port, public_key))
+        {
+            weechat_printf(profile->buffer,
+                           "%sBootstrap could not open address \"%s\"",
+                           weechat_prefix("error"), address);
+        }
+      } else if (argc > 2 && strlen(argv[2]) > 0) {
+	if (weechat_strcasecmp(argv[2], "0") == 0) {
+	  TOX_CONNECTION status;
+	  status = tox_self_get_connection_status(profile->tox);
+	  if ( status == TOX_CONNECTION_NONE) {
+            weechat_printf(profile->buffer,
+                           "%sBootstrap connected.",
+                           weechat_prefix("network"));
+	  } else {
+            weechat_printf(profile->buffer,
+                           "%sBootstrap not connected.",
+                           weechat_prefix("network"));
+	  }
+	}
+      } else {	
+        if (!twc_bootstrap_random_relay(profile->tox))
+        {
+            weechat_printf(profile->buffer,
+                           "%sBootstrap could not open random relay",
+                           weechat_prefix("error"));
+        }
+      };	
+      return WEECHAT_RC_OK;
     }
 
     return WEECHAT_RC_ERROR;
@@ -1337,11 +1398,14 @@ void
 twc_commands_init()
 {
     weechat_hook_command("bootstrap", "manage bootstrap nodes",
-                         "connect <address> <port> <Tox ID>",
+                         "connect <address> <port> <Tox ID>"
+			 " || relay <address> <port> <Tox ID>",
                          "address: internet address of node to bootstrap with\n"
                          "   port: port of the node\n"
                          " Tox ID: Tox ID of the node",
-                         "connect", twc_cmd_bootstrap, NULL, NULL);
+                         "connect"
+			 " || relay",
+			 twc_cmd_bootstrap, NULL, NULL);
 
     weechat_hook_command("friend", "manage friends",
                          "list"

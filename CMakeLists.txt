@@ -20,6 +20,9 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(tox-weechat C)
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I/var/local/src/c-toxcore/toxcore -I/var/local/src/c-toxcore/toxac -I/var/local/src/c-toxcore/toxencryptsave")
+set(LD_FLAGS "${LD_FLAGS} -I/var/local/src/c-toxcore/_build")
+
 add_library(tox MODULE
     src/twc.c
     src/twc-bootstrap.c
@@ -29,7 +32,7 @@ add_library(tox MODULE
     src/twc-config.c
     src/twc-friend-request.c
     src/twc-gui.c
-    src/twc-group-invite.c
+    src/twc-conf-invite.c
     src/twc-list.c
     src/twc-message-queue.c
     src/twc-profile.c

@@ -31,7 +31,7 @@
 #include "twc-utils.h"
 #include "twc.h"
 
-#include "twc-group-invite.h"
+#include "twc-conf-invite.h"
 
 /**
  * Add a new group invite to a profile.

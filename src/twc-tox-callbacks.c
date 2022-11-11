@@ -29,7 +29,7 @@
 
 #include "twc-chat.h"
 #include "twc-friend-request.h"
-#include "twc-group-invite.h"
+#include "twc-conf-invite.h"
 #include "twc-message-queue.h"
 #include "twc-profile.h"
 #include "twc-tfer.h"
@@ -593,7 +593,7 @@ twc_group_title_callback(Tox *tox, uint32_t group_number, uint32_t peer_number,
 
 void
 twc_file_recv_control_callback(Tox *tox, uint32_t friend_number,
-                               uint32_t file_number, TOX_FILE_CONTROL control,
+                               uint32_t file_number, Tox_File_Control control,
                                void *user_data)
 {
     struct t_twc_profile *profile = twc_profile_search_tox(tox);
@@ -668,7 +668,7 @@ twc_file_chunk_request_callback(Tox *tox, uint32_t friend_number,
                        weechat_prefix("error"), file->filename);
         return;
     }
-    enum TOX_ERR_FILE_SEND_CHUNK error;
+    enum Tox_Err_File_Send_Chunk error;
     tox_file_send_chunk(profile->tox, friend_number, file_number, position,
                         data, length, &error);
     if (error)

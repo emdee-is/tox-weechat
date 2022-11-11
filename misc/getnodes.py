@@ -21,14 +21,19 @@
 
 import re
 import sys
+import os
 import json
 import datetime
 import textwrap
 import urllib.request
 
-if __name__ == '__main__':
-    with urllib.request.urlopen('https://nodes.tox.chat/json') as response:
-        data = json.load(response)
+def iMain(surl):
+    if os.path.exists(surl):
+        with open(surl, 'rt') as response:
+            data = json.load(response)
+    else:
+        with urllib.request.urlopen(surl) as response:
+            data = json.load(response)
 
     # get online nodes that are defined by IP address
     nodes = [node for node in data['nodes']
@@ -52,3 +57,32 @@ if __name__ == '__main__':
         print('    {{"{}",'.format(key))
         print('     "{}", {}}},'.format(address, port))
     print('};')
+
+    # get online nodes that are defined by IP address
+    nodes = [node for node in data['nodes']
+                  if (node['status_tcp'] and node['tcp_ports'])
+                    and re.match(r'^\d+\.\d+\.\d+\.\d+$', node['ipv4'])]
+
+    print('static struct t_twc_bootstrap_node const twc_bootstrap_relays[] = {')
+    for node in nodes:
+        for port in node['tcp_ports']:
+            # extract relevant values from node dictionaries
+            address = node['ipv4']
+            key = node['public_key']
+            comment = 'Maintainer: {}, location: {}'.format(
+                node['maintainer'], node['location'])
+
+            print('    /* {} */'.format(comment))
+            print('    {{"{}",'.format(key))
+            print('     "{}", {}}},'.format(address, port))
+    print('};')
+    return 0
+
+if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        surl = sys.argv[1]
+    else:
+        surl = 'https://nodes.tox.chat/json'
+    sys.exit(iMain(surl))
+
+    

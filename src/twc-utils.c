@@ -239,7 +239,7 @@ twc_set_buffer_logging(struct t_gui_buffer *buffer, bool logging)
  */
 
 char *
-twc_tox_err_file_control(enum TOX_ERR_FILE_CONTROL error)
+twc_tox_err_file_control(enum Tox_Err_File_Control error)
 {
     char *messages[] = {
         "success",
@@ -256,7 +256,7 @@ twc_tox_err_file_control(enum TOX_ERR_FILE_CONTROL error)
 }
 
 char *
-twc_tox_err_file_get(enum TOX_ERR_FILE_GET error)
+twc_tox_err_file_get(enum Tox_Err_File_Get error)
 {
     char *messages[] = {
         "success",
@@ -269,7 +269,7 @@ twc_tox_err_file_get(enum TOX_ERR_FILE_GET error)
 }
 
 char *
-twc_tox_err_file_seek(enum TOX_ERR_FILE_SEEK error)
+twc_tox_err_file_seek(enum Tox_Err_File_Seek error)
 {
     char *messages[] = {
         "success",
@@ -284,7 +284,7 @@ twc_tox_err_file_seek(enum TOX_ERR_FILE_SEEK error)
 }
 
 char *
-twc_tox_err_file_send(enum TOX_ERR_FILE_SEND error)
+twc_tox_err_file_send(enum Tox_Err_File_Send error)
 {
     char *messages[] = {
         "success",
@@ -298,7 +298,7 @@ twc_tox_err_file_send(enum TOX_ERR_FILE_SEND error)
 }
 
 char *
-twc_tox_err_file_send_chunk(enum TOX_ERR_FILE_SEND_CHUNK error)
+twc_tox_err_file_send_chunk(enum Tox_Err_File_Send_Chunk error)
 {
     char *messages[] = {
         "success",
