@@ -5,11 +5,10 @@ but lacks certain features that might be expected of a full-fledged Tox client.
 Tox-WeeChat is compliant with all "Required" points in the [Tox Client
 Standard][3].
 
-[![Build Status](https://travis-ci.org/haavard/tox-weechat.svg?branch=master)][4]
 
 ## Features
  - One-to-one chats
- - Group chats (text only)
+ - Conference chats (text only)
  - Proxy support
  - Multiple profiles
  - Encrypted save files
@@ -17,16 +16,18 @@ Standard][3].
 
 ## Installation
 Tox-WeeChat requires [WeeChat][2] (tested with version 2.3) and [TokTok
-c-toxcore][5] (tested with version 0.2.8). CMake 2.8.12 or newer is also
-required to build. Installation is fairly simple; after getting the source
-code, compile and install using CMake:
+c-toxcore][4] (tested with version 0.2.18). CMake 2.8.12 or newer is also
+required to build. 
+
+Installation is fairly simple; after getting the source code, compile
+and install using CMake:
 
     $ mkdir build && cd build
-    $ cmake -DPLUGIN_PATH=~/.weechat/plugins ..
+    $ cmake -DPLUGIN_PATH=~/.cache/weechat/plugins ..
     $ make install
 
 This installs the plugin binary `tox.so` to the recommended location
-`~/.weechat/plugins`. The default location is `/usr/local/lib/weechat/plugins`.
+`~/.cache/weechat/plugins`. The default location is `/usr/local/lib/weechat/plugins`.
 
 If WeeChat or toxcore are installed in a non-standard location, you can try
 specifying `CMAKE_PREFIX_PATH` to find them; see [.travis.yml](.travis.yml) for
@@ -37,11 +38,11 @@ an example.
    You may have to specify the full path to the plugin binary if you installed
    it to a non-standard location.
  - Create a new profile with `/tox create <profile name>`. The data file is
-   stored in `~/.weechat/tox/` by default.
+   stored in `~/.cache/weechat/tox/` by default.
  - Load your profile and connect to the Tox network with
    `/tox load <profile name>`.
  - Run `/help -listfull tox` to get a list of all available commands, and
-   `/set tox.*` for a list of options.
+   `/set tox.*` for a list of options, including proxies.
 
 ### Common issues
 #### Long Tox names messing up WeeChat layout
@@ -53,7 +54,7 @@ your screen space, you can set the following options in WeeChat:
 
 #### Tox won't connect through my proxy
 Make sure the proxy type, address and port is correct, and that UDP is
-disabled (`/set tox.profile.*.udp`).
+disabled (`/set tox.profile.*.udp`) and probably IPv6.
 
 ## License
 Copyright (c) 2018 Håvard Pettersson <mail@haavard.me>
@@ -76,6 +77,9 @@ along with Tox-WeeChat.  If not, see <http://www.gnu.org/licenses/>.
 [1]: http://tox.chat
 [2]: http://weechat.org
 [3]: https://github.com/Tox/Tox-Client-Standard
-[4]: https://travis-ci.org/haavard/tox-weechat
-[5]: https://github.com/TokTok/c-toxcore
+[4]: https://github.com/TokTok/c-toxcore
 
+---
+
+This is a hard fork of https://github.com/haavard/tox-weechat/
+now at https://git.macaw.me/emdee/tox-weechat
