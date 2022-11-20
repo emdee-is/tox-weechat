@@ -234,7 +234,7 @@ twc_chat_search_friend(struct t_twc_profile *profile, int32_t friend_number,
  * create a new one.
  */
 struct t_twc_chat *
-twc_chat_search_group(struct t_twc_profile *profile, int32_t group_number,
+twc_chat_search_conf(struct t_twc_profile *profile, int32_t group_number,
                       bool create_new)
 {
     size_t index;

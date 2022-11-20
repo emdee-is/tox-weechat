@@ -48,10 +48,10 @@ int
 twc_group_chat_invite_join(struct t_twc_group_chat_invite *invite);
 
 void
-twc_group_chat_invite_remove(struct t_twc_group_chat_invite *invite);
+twc_conf_chat_invite_remove(struct t_twc_group_chat_invite *invite);
 
 struct t_twc_group_chat_invite *
-twc_group_chat_invite_with_index(struct t_twc_profile *profile, size_t index);
+twc_conf_chat_invite_with_index(struct t_twc_profile *profile, size_t index);
 
 void
 twc_group_chat_invite_free(struct t_twc_group_chat_invite *invite);

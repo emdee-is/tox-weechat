@@ -150,7 +150,7 @@ void
 twc_tfer_buffer_update(struct t_twc_tfer *tfer);
 
 void
-twc_tfer_file_err_send_message(char *message, enum TOX_ERR_FILE_SEND error);
+twc_tfer_file_err_send_message(char *message, enum Tox_Err_File_Send error);
 
 void
 twc_tfer_file_free(struct t_twc_tfer_file *file);

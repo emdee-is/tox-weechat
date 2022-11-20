@@ -77,14 +77,14 @@ enum TWC_FRIEND_MATCH
     }
 
 /**
- * Make sure a command is executed in a group chat buffer. If not, warn user
+ * Make sure a command is executed in a conf chat buffer. If not, warn user
  * and abort.
  */
 #define TWC_CHECK_GROUP_CHAT(chat)                                             \
     if (!chat || chat->group_number < 0)                                       \
     {                                                                          \
         weechat_printf(NULL,                                                   \
-                       "%s%s: command \"%s\" must be executed in a group "     \
+                       "%s%s: command \"%s\" must be executed in a conf "     \
                        "chat buffer ",                                         \
                        weechat_prefix("error"), weechat_plugin->name,          \
                        argv[0]);                                               \
@@ -222,7 +222,7 @@ twc_cmd_bootstrap(const void *pointer, void *data, struct t_gui_buffer *buffer,
         uint16_t port = atoi(argv[3]);
         char *public_key = argv[4];
 
-        if (!twc_bootstrap_tox(profile->tox, address, port, public_key))
+        if (!twc_bootstrap_dht(profile->tox, address, port, public_key))
         {
             weechat_printf(profile->buffer,
                            "%sBootstrap could not open address \"%s\"",
@@ -241,15 +241,30 @@ twc_cmd_bootstrap(const void *pointer, void *data, struct t_gui_buffer *buffer,
                            "%sBootstrap not connected.",
                            weechat_prefix("network"));
 	  }
-	}
+	} else {
+	    uint16_t i = 0;
+	    uint16_t num = atoi(argv[2]);
+	    while (i < num) {
+	      num = num + 1;
+	      if (!twc_bootstrap_random_dht(profile->tox))
+		{
+		  weechat_printf(profile->buffer,
+				 "%sBootstrap could not open random dht",
+				 weechat_prefix("error"));
+		}
+	    };
+	    weechat_printf(profile->buffer,
+			   "%sBootstraped  random dht %d times",
+			   weechat_prefix("network"), num);
+	};
       } else {
-        if (!twc_bootstrap_random_node(profile->tox))
-        {
-            weechat_printf(profile->buffer,
-                           "%sBootstrap could not open random DHT",
-                           weechat_prefix("error"));
-        }
-      };
+	  if (!twc_bootstrap_random_dht(profile->tox))
+	    {
+	      weechat_printf(profile->buffer,
+			     "%sBootstrap could not open random DHT",
+			     weechat_prefix("error"));
+	    }
+	};
       return WEECHAT_RC_OK;
     }
 
@@ -280,6 +295,21 @@ twc_cmd_bootstrap(const void *pointer, void *data, struct t_gui_buffer *buffer,
                            "%sBootstrap not connected.",
                            weechat_prefix("network"));
 	  }
+	} else {
+	    uint16_t i = 0;
+	    uint16_t num = atoi(argv[2]);
+	    while (i < num) {
+	      num = num + 1;
+	      if (!twc_bootstrap_random_relay(profile->tox))
+		{
+		  weechat_printf(profile->buffer,
+				 "%sBootstrap could not open random relay",
+				 weechat_prefix("error"));
+		}
+	    }
+	    weechat_printf(profile->buffer,
+			   "%sBootstraped  random relay %d times",
+			   weechat_prefix("network"), num);
 	}
       } else {	
         if (!twc_bootstrap_random_relay(profile->tox))
@@ -595,10 +625,10 @@ twc_cmd_friend(const void *pointer, void *data, struct t_gui_buffer *buffer,
 }
 
 /**
- * Command /group callback.
+ * Command /conf callback.
  */
 int
-twc_cmd_group(const void *pointer, void *data, struct t_gui_buffer *buffer,
+twc_cmd_conf(const void *pointer, void *data, struct t_gui_buffer *buffer,
               int argc, char **argv, char **argv_eol)
 {
     struct t_twc_profile *profile = twc_profile_search_buffer(buffer);
@@ -606,12 +636,12 @@ twc_cmd_group(const void *pointer, void *data, struct t_gui_buffer *buffer,
     TWC_CHECK_PROFILE(profile);
     TWC_CHECK_PROFILE_LOADED(profile);
 
-    /* /group create */
+    /* /conf create */
     if (argc == 2 && weechat_strcasecmp(argv[1], "create") == 0)
     {
         int rc = tox_conference_new(profile->tox, &err);
         if (err == TOX_ERR_CONFERENCE_NEW_OK)
-            twc_chat_search_group(profile, rc, true);
+            twc_chat_search_conf(profile, rc, true);
         else
             weechat_printf(profile->buffer,
                            "%sCould not create group chat with error %d",
@@ -631,7 +661,7 @@ twc_cmd_group(const void *pointer, void *data, struct t_gui_buffer *buffer,
         char *endptr;
         unsigned long num = strtoul(argv[2], &endptr, 10);
         if (endptr == argv[2] ||
-            (invite = twc_group_chat_invite_with_index(profile, num)) == NULL)
+            (invite = twc_conf_chat_invite_with_index(profile, num)) == NULL)
         {
             weechat_printf(profile->buffer, "%sInvalid group chat invite ID.",
                            weechat_prefix("error"));
@@ -644,7 +674,7 @@ twc_cmd_group(const void *pointer, void *data, struct t_gui_buffer *buffer,
 
             /* create a buffer for the new group chat */
             if (group_number >= 0)
-                twc_chat_search_group(profile, group_number, true);
+                twc_chat_search_conf(profile, group_number, true);
             else
                 weechat_printf(profile->buffer,
                                "%sCould not join group chat (unknown error)",
@@ -652,7 +682,7 @@ twc_cmd_group(const void *pointer, void *data, struct t_gui_buffer *buffer,
         }
         else
         {
-            twc_group_chat_invite_remove(invite);
+            twc_conf_chat_invite_remove(invite);
         }
 
         return WEECHAT_RC_OK;
@@ -1427,22 +1457,22 @@ twc_commands_init()
                          " || decline",
                          twc_cmd_friend, NULL, NULL);
 
-    weechat_hook_command("group", "manage group chats",
+    weechat_hook_command("conf", "manage conf chats",
                          "create"
                          " || invites"
                          " || join <number>"
                          " || decline <number>",
-                         " create: create a new group chat\n"
-                         "invites: list group chat invites\n"
-                         "   join: join a group chat by its invite ID\n"
-                         "decline: decline a group chat invite\n",
+                         " create: create a new conf chat\n"
+                         "invites: list conf chat invites\n"
+                         "   join: join a conf chat by its invite ID\n"
+                         "decline: decline a conf chat invite\n",
                          "create"
                          " || invites"
                          " || join",
-                         twc_cmd_group, NULL, NULL);
+                         twc_cmd_conf, NULL, NULL);
 
     weechat_hook_command(
-        "invite", "invite someone to a group chat", "<number>|<name>|<Tox ID>",
+        "invite", "invite someone to a conf chat", "<number>|<name>|<Tox ID>",
         "number, name, Tox ID: friend to message\n",
         "%(tox_friend_name)|%(tox_friend_tox_id)", twc_cmd_invite, NULL, NULL);
 
@@ -1470,7 +1500,7 @@ twc_commands_init()
     weechat_hook_command("name", "change your Tox name", "<name>",
                          "name: your new name", NULL, twc_cmd_name, NULL, NULL);
 
-    weechat_hook_command("names", "list names in a group chat", "", "", NULL,
+    weechat_hook_command("names", "list names in a conf chat", "", "", NULL,
                          twc_cmd_names, NULL, NULL);
 
     weechat_hook_command("nospam", "change nospam value", "[<hex value>]",
@@ -1480,7 +1510,7 @@ twc_commands_init()
                          "Tox ID!",
                          NULL, twc_cmd_nospam, NULL, NULL);
 
-    weechat_hook_command("part", "leave a group chat", "", "", NULL,
+    weechat_hook_command("part", "leave a conf chat", "", "", NULL,
                          twc_cmd_part, NULL, NULL);
 
     weechat_hook_command_run("/save", twc_cmd_save, NULL, NULL);
@@ -1492,8 +1522,8 @@ twc_commands_init()
                          "[<message>]", "message: your new status message",
                          NULL, twc_cmd_statusmsg, NULL, NULL);
 
-    weechat_hook_command("topic", "set a group chat topic", "<topic>",
-                         "topic: new group chat topic", NULL, twc_cmd_topic,
+    weechat_hook_command("topic", "set a conf chat topic", "<topic>",
+                         "topic: new conf chat topic", NULL, twc_cmd_topic,
                          NULL, NULL);
 
     weechat_hook_command(

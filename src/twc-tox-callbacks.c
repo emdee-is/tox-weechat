@@ -71,7 +71,7 @@ twc_do_timer_cb(const void *pointer, void *data, int remaining_calls)
     if (TWC_PROFILE_OPTION_BOOLEAN(profile, TWC_PROFILE_OPTION_AUTOJOIN))
     {
         struct t_twc_group_chat_invite *invite;
-        for (i = 0; (invite = twc_group_chat_invite_with_index(profile, i));
+        for (i = 0; (invite = twc_conf_chat_invite_with_index(profile, i));
              i++)
             if (invite->autojoin_delay <= 0)
             {
@@ -408,7 +408,7 @@ twc_handle_group_message(Tox *tox, int32_t group_number, int32_t peer_number,
     struct t_twc_profile *profile = data;
 
     struct t_twc_chat *chat =
-        twc_chat_search_group(profile, group_number, true);
+        twc_chat_search_conf(profile, group_number, true);
 
     char *myname = twc_get_self_name_nt(profile->tox);
     char *name = twc_get_peer_name_nt(profile->tox, group_number, peer_number);
@@ -448,7 +448,7 @@ twc_group_peer_list_changed_callback(Tox *tox, uint32_t group_number,
 {
     struct t_twc_profile *profile = data;
     struct t_twc_chat *chat =
-        twc_chat_search_group(profile, group_number, true);
+        twc_chat_search_conf(profile, group_number, true);
 
     struct t_gui_nick *nick = NULL;
     int i, npeers;
@@ -517,7 +517,7 @@ twc_group_peer_name_callback(Tox *tox, uint32_t group_number,
 {
     struct t_twc_profile *profile = data;
     struct t_twc_chat *chat =
-        twc_chat_search_group(profile, group_number, true);
+        twc_chat_search_conf(profile, group_number, true);
 
     int npeers, len;
     struct t_gui_nick *nick = NULL;
@@ -580,7 +580,7 @@ twc_group_title_callback(Tox *tox, uint32_t group_number, uint32_t peer_number,
 {
     struct t_twc_profile *profile = data;
     struct t_twc_chat *chat =
-        twc_chat_search_group(profile, group_number, true);
+        twc_chat_search_conf(profile, group_number, true);
     twc_chat_queue_refresh(chat);
 
     char *name = twc_get_peer_name_nt(profile->tox, group_number, peer_number);

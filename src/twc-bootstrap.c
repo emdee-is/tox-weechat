@@ -189,7 +189,7 @@ static int const twc_bootstrap_count =
  * tox_bootstrap_from_address.
  */
 int
-twc_bootstrap_tox(Tox *tox, const char *address, uint16_t port,
+twc_bootstrap_dht(Tox *tox, const char *address, uint16_t port,
                   const char *public_key)
 {
     uint8_t binary_key[TOX_ADDRESS_SIZE];
@@ -224,12 +224,12 @@ twc_bootstrap_relay(Tox *tox, const char *address, uint16_t port,
  * Bootstrap a Tox object with a random DHT bootstrap node.
  */
 int
-twc_bootstrap_random_node(Tox *tox)
+twc_bootstrap_random_dht(Tox *tox)
 {
     int i = rand() % twc_bootstrap_count;
     struct t_twc_bootstrap_node const *const node = &twc_bootstrap_nodes[i];
     int result;
-    result = twc_bootstrap_tox(tox, node->address, node->port, node->key);
+    result = twc_bootstrap_dht(tox, node->address, node->port, node->key);
     return result;
 }
 

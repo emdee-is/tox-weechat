@@ -23,11 +23,11 @@
 #include <tox/tox.h>
 
 int
-twc_bootstrap_tox(Tox *tox, const char *address, uint16_t port,
+twc_bootstrap_dht(Tox *tox, const char *address, uint16_t port,
                   const char *public_key);
 
 int
-twc_bootstrap_random_node(Tox *tox);
+twc_bootstrap_random_dht(Tox *tox);
 
 int
 twc_bootstrap_relay(Tox *tox, const char *address, uint16_t port,

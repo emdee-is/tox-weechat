@@ -96,7 +96,7 @@ twc_group_chat_invite_join(struct t_twc_group_chat_invite *invite)
             break;
     }
 
-    twc_group_chat_invite_remove(invite);
+    twc_conf_chat_invite_remove(invite);
 
     if (err != TOX_ERR_CONFERENCE_JOIN_OK)
         return -1;
@@ -107,7 +107,7 @@ twc_group_chat_invite_join(struct t_twc_group_chat_invite *invite)
  * Remove and free a group chat invite.
  */
 void
-twc_group_chat_invite_remove(struct t_twc_group_chat_invite *invite)
+twc_conf_chat_invite_remove(struct t_twc_group_chat_invite *invite)
 {
     twc_list_remove_with_data(invite->profile->group_chat_invites, invite);
     twc_group_chat_invite_free(invite);
@@ -117,7 +117,7 @@ twc_group_chat_invite_remove(struct t_twc_group_chat_invite *invite)
  * Get group chat invite with a given index.
  */
 struct t_twc_group_chat_invite *
-twc_group_chat_invite_with_index(struct t_twc_profile *profile, size_t index)
+twc_conf_chat_invite_with_index(struct t_twc_profile *profile, size_t index)
 {
     struct t_twc_list_item *item =
         twc_list_get(profile->group_chat_invites, index);

@@ -33,7 +33,7 @@
 #include "twc-chat.h"
 #include "twc-config.h"
 #include "twc-friend-request.h"
-#include "twc-group-invite.h"
+#include "twc-conf-invite.h"
 #include "twc-list.h"
 #include "twc-message-queue.h"
 #include "twc-tox-callbacks.h"
@@ -439,9 +439,9 @@ twc_profile_load(struct t_twc_profile *profile)
 
     /* bootstrap DHT
      * TODO: add count to config */
-    int bootstrap_node_count = 5;
+    int bootstrap_node_count = 8;
     for (int i = 0; i < bootstrap_node_count; ++i)
-        twc_bootstrap_random_node(profile->tox);
+        twc_bootstrap_random_dht(profile->tox);
 
     /* start tox_iterate loop */
     twc_do_timer_cb(profile, NULL, 0);
@@ -532,14 +532,21 @@ twc_profile_refresh_online_status(struct t_twc_profile *profile)
 void
 twc_profile_set_online_status(struct t_twc_profile *profile, bool status)
 {
+    TOX_CONNECTION connection = tox_self_get_connection_status(profile->tox);
+
     if (profile->tox_online ^ status)
     {
         profile->tox_online = status;
         twc_profile_refresh_online_status(profile);
 
-        if (profile->tox_online)
+        if (connection == TOX_CONNECTION_TCP)
         {
-            weechat_printf(profile->buffer, "%sprofile %s connected",
+            weechat_printf(profile->buffer, "%sprofile %s TCP",
+                           weechat_prefix("network"), profile->name);
+        }
+        else if (connection == TOX_CONNECTION_UDP)
+        {
+            weechat_printf(profile->buffer, "%sprofile %s UDP",
                            weechat_prefix("network"), profile->name);
         }
         else
