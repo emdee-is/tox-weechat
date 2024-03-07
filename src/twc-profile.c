@@ -190,34 +190,43 @@ twc_profile_set_options(struct Tox_Options *options,
 
     const char *proxy_host =
         TWC_PROFILE_OPTION_STRING(profile, TWC_PROFILE_OPTION_PROXY_ADDRESS);
-    if (proxy_host)
-        options->proxy_host = proxy_host;
-
     switch (TWC_PROFILE_OPTION_INTEGER(profile, TWC_PROFILE_OPTION_PROXY_TYPE))
     {
         case TWC_PROXY_NONE:
             options->proxy_type = TOX_PROXY_TYPE_NONE;
+	    options->udp_enabled =
+	      TWC_PROFILE_OPTION_BOOLEAN(profile, TWC_PROFILE_OPTION_UDP);
+	    options->hole_punching_enabled =
+	      TWC_PROFILE_OPTION_BOOLEAN(profile, TWC_PROFILE_OPTION_HOLE_PUNCHING_ENABLED);
             break;
         case TWC_PROXY_HTTP:
             options->proxy_type = TOX_PROXY_TYPE_HTTP;
+	    options->udp_enabled = false;
+	    options->hole_punching_enabled = false;
+	    if (proxy_host) {
+	      options->proxy_host = proxy_host;
+	      options->proxy_port =
+		(uint16_t)TWC_PROFILE_OPTION_INTEGER(profile, TWC_PROFILE_OPTION_PROXY_PORT);
+	    }
             break;
         case TWC_PROXY_SOCKS5:
             options->proxy_type = TOX_PROXY_TYPE_SOCKS5;
+	    options->udp_enabled = false;
+	    options->hole_punching_enabled = false;
+	    if (proxy_host) {
+	      options->proxy_host = proxy_host;
+	      options->proxy_port =
+		(uint16_t)TWC_PROFILE_OPTION_INTEGER(profile, TWC_PROFILE_OPTION_PROXY_PORT);
+	    }
             break;
     }
 
-    options->proxy_port =
-        TWC_PROFILE_OPTION_INTEGER(profile, TWC_PROFILE_OPTION_PROXY_PORT);
-    options->udp_enabled =
-        TWC_PROFILE_OPTION_BOOLEAN(profile, TWC_PROFILE_OPTION_UDP);
     options->ipv6_enabled =
         TWC_PROFILE_OPTION_BOOLEAN(profile, TWC_PROFILE_OPTION_IPV6);
     options->local_discovery_enabled =
         TWC_PROFILE_OPTION_BOOLEAN(profile, TWC_PROFILE_OPTION_LAN_DISCOVERY);
     options->dht_announcements_enabled =
         TWC_PROFILE_OPTION_BOOLEAN(profile, TWC_PROFILE_OPTION_DHT_ANNOUNCEMENTS_ENABLED);
-    options->hole_punching_enabled =
-        TWC_PROFILE_OPTION_BOOLEAN(profile, TWC_PROFILE_OPTION_HOLE_PUNCHING_ENABLED);
 
 #ifndef NDEBUG
     options->log_callback = twc_tox_log_callback;
@@ -324,7 +333,7 @@ twc_profile_load(struct t_twc_profile *profile)
     /* print a proxy message */
     if (options.proxy_type != TOX_PROXY_TYPE_NONE)
     {
-        weechat_printf(profile->buffer, "%susing %s proxy %s:%d" PRIu16,
+        weechat_printf(profile->buffer, "%susing %s proxy %s:%d",
                        weechat_prefix("network"),
                        options.proxy_type == TOX_PROXY_TYPE_HTTP
                            ? "HTTP"
@@ -338,8 +347,22 @@ twc_profile_load(struct t_twc_profile *profile)
                            "be hidden.",
                            weechat_prefix("error"), weechat_color("lightred"),
                            weechat_color("reset"));
+        if (options.ipv6_enabled)
+            weechat_printf(profile->buffer,
+                           "%s%swarning:%s Tox is configured to use a proxy, "
+                           "but IPV6 is not disabled. This will not work if your "
+                           "proxy is IPV4.",
+                           weechat_prefix("error"), weechat_color("lightred"),
+                           weechat_color("reset"));
     }
-
+    weechat_printf(profile->buffer, "%susing UDP %d IPV6 %d LAN %d DHT %d HOLE %d",
+		   weechat_prefix("network"),
+		   options.udp_enabled,
+		   options.ipv6_enabled,
+		   options.local_discovery_enabled,
+		   options.dht_announcements_enabled,
+		   options.hole_punching_enabled);
+		   
     /* try loading data file */
     char *path = twc_profile_expanded_data_path(profile);
     FILE *file = NULL;
@@ -353,6 +376,8 @@ twc_profile_load(struct t_twc_profile *profile)
     {
         fseek(file, 0, SEEK_END);
         data_size = ftell(file);
+	weechat_printf(profile->buffer, "%sloaded file %s",
+                   weechat_prefix("network"), path);
     }
 
     uint8_t data[data_size];
@@ -441,13 +466,23 @@ twc_profile_load(struct t_twc_profile *profile)
             tox_self_set_name(profile->tox, (uint8_t *)default_name,
                               strlen(default_name), NULL);
     }
-
+    if (!(profile->tox)) {
+      weechat_printf(profile->buffer,
+		     "%scould not create Tox structure, aborting",
+		     weechat_prefix("error"));
+      return TWC_RC_ERROR;
+    }
+    
     /* bootstrap DHT
      * TODO: add count to config */
     int bootstrap_node_count = 8;
-    for (int i = 0; i < bootstrap_node_count; ++i)
+    for (int i = 0; i < bootstrap_node_count; ++i) {
         twc_bootstrap_random_dht(profile->tox);
-
+	if (options.proxy_type > TOX_PROXY_TYPE_NONE) {
+	  twc_bootstrap_random_relay(profile->tox);
+	}
+    }
+    
     /* start tox_iterate loop */
     twc_do_timer_cb(profile, NULL, 0);
 
@@ -504,9 +539,9 @@ twc_profile_unload(struct t_twc_profile *profile)
     /* stop Tox timer */
     weechat_unhook(profile->tox_do_timer);
 
+    twc_profile_refresh_online_status();
     /* have to refresh and hide bar items even if we were already offline
      * TODO */
-    twc_profile_refresh_online_status(profile);
     twc_profile_set_online_status(profile, false);
 }
 
@@ -527,7 +562,7 @@ twc_profile_autoload()
 }
 
 void
-twc_profile_refresh_online_status(struct t_twc_profile *profile)
+twc_profile_refresh_online_status()
 {
     weechat_bar_item_update("buffer_plugin");
     weechat_bar_item_update("input_prompt");
@@ -537,12 +572,14 @@ twc_profile_refresh_online_status(struct t_twc_profile *profile)
 void
 twc_profile_set_online_status(struct t_twc_profile *profile, bool status)
 {
-    TOX_CONNECTION connection = tox_self_get_connection_status(profile->tox);
+    if (!(profile)) {
+      weechat_printf(profile->buffer, "%sno profile",
+		     weechat_prefix("network"));
+    } else if (profile->tox_online ^ status) {
+        TOX_CONNECTION connection = tox_self_get_connection_status(profile->tox);
 
-    if (profile->tox_online ^ status)
-    {
         profile->tox_online = status;
-        twc_profile_refresh_online_status(profile);
+        twc_profile_refresh_online_status();
 
         if (connection == TOX_CONNECTION_TCP)
         {

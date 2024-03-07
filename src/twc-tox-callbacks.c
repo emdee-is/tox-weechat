@@ -672,9 +672,10 @@ twc_file_chunk_request_callback(Tox *tox, uint32_t friend_number,
     tox_file_send_chunk(profile->tox, friend_number, file_number, position,
                         data, length, &error);
     if (error)
-        weechat_printf(profile->buffer, "%s%s: chunk sending error: %s",
+        weechat_printf(profile->buffer, "%s%s: chunk sending error: %d",
                        weechat_prefix("error"), file->filename,
-                       twc_tox_err_file_send_chunk(error));
+		       /* twc_tox_err_file_send_chunk() */
+                       error);
     else
     {
         file->position += length;

@@ -55,6 +55,7 @@ char *twc_profile_option_names[TWC_PROFILE_NUM_OPTIONS] = {
     "downloading_path",
     "local_discovery_enabled",
     "dht_announcements_enabled",
+    "hole_punching_enabled",
 };
 
 /**
@@ -285,7 +286,7 @@ twc_config_init_option(struct t_twc_profile *profile,
             break;
         case TWC_PROFILE_OPTION_PROXY_TYPE:
             type = "integer";
-            description = "proxy type (none=0|http=1||socks5=2); requires profile reload to take effect";
+            description = "proxy type (none=0|http=1|socks5=2); requires profile reload to take effect";
             /* string_values = "none|socks5|http"; */
             min = 0;
             max = 2;
@@ -302,17 +303,17 @@ twc_config_init_option(struct t_twc_profile *profile,
             description = "use UDP when communicating with the Tox network";
             default_value = "on";
             break;
-        case TWC_PROFILE_OPTION_LAN_DISCOVERY:
-            type = "boolean";
-            description = "look for nodes on the local lan";
-            default_value = "off";
-            break;
         case TWC_PROFILE_OPTION_DOWNLOADING_PATH:
             type = "string";
             description =
                 "path to downloaded files (\"%h\" will be replaced by "
                 "WeeChat home folder and \"%p\" by profile name";
             default_value = "%h/tfer/%p/";
+            break;
+        case TWC_PROFILE_OPTION_LAN_DISCOVERY:
+            type = "boolean";
+            description = "look for nodes on the local lan";
+            default_value = "off";
             break;
         case TWC_PROFILE_OPTION_DHT_ANNOUNCEMENTS_ENABLED:
             type = "boolean";
@@ -401,6 +402,7 @@ twc_config_init_profile(struct t_twc_profile *profile)
 {
     for (int i = 0; i < TWC_PROFILE_NUM_OPTIONS; ++i)
     {
+      if (profile && profile->name) {
         /* length: name + . + option + \0 */
         size_t length =
             strlen(profile->name) + 1 + strlen(twc_profile_option_names[i]) + 1;
@@ -415,6 +417,7 @@ twc_config_init_profile(struct t_twc_profile *profile)
                 profile, twc_config_section_profile, i, option_name, false);
             free(option_name);
         }
+      }
     }
 }
 

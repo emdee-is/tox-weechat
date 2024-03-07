@@ -43,7 +43,9 @@ enum t_twc_profile_option
     TWC_PROFILE_OPTION_LOGGING,
     TWC_PROFILE_OPTION_DOWNLOADING_PATH,
     TWC_PROFILE_OPTION_LAN_DISCOVERY,
-
+    TWC_PROFILE_OPTION_DHT_ANNOUNCEMENTS_ENABLED,
+    TWC_PROFILE_OPTION_HOLE_PUNCHING_ENABLED,
+    
     TWC_PROFILE_NUM_OPTIONS,
 };
 
@@ -123,7 +125,7 @@ int
 twc_profile_save_data_file(struct t_twc_profile *profile);
 
 void
-twc_profile_refresh_online_status(struct t_twc_profile *profile);
+twc_profile_refresh_online_status();
 
 void
 twc_profile_set_online_status(struct t_twc_profile *profile, bool online);

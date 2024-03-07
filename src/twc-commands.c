@@ -1398,7 +1398,7 @@ twc_cmd_send(const void *pointer, void *data, struct t_gui_buffer *buffer,
     {
         weechat_printf(profile->buffer, "%ssending \"%s\" has been failed: %d",
                        weechat_prefix("error"), filename,
-			/*                        twc_tox_err_file_send */
+		       /* twc_tox_err_file_send_to_string */
                        error);
         return WEECHAT_RC_ERROR;
     }
