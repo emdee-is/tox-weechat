@@ -1,6 +1,7 @@
 # Tox-WeeChat
 Tox-WeeChat is a [Tox][1] protocol plugin for [WeeChat][2]. It is functional,
 but lacks certain features that might be expected of a full-fledged Tox client.
+Originally from the abandonned https://github.com/haavard/tox-weechat
 
 Tox-WeeChat is compliant with all "Required" points in the [Tox Client
 Standard][3].

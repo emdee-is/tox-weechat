@@ -20,8 +20,8 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(tox-weechat C)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I/var/local/src/c-toxcore/toxcore -I/var/local/src/c-toxcore/toxac -I/var/local/src/c-toxcore/toxencryptsave")
-set(LD_FLAGS "${LD_FLAGS} -I/var/local/src/c-toxcore/_build")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I/usr/local/src/c-toxcore/toxcore -I/var/local/src/c-toxcore/toxav -I/usr/local/src/c-toxcore/toxencryptsave")
+set(LD_FLAGS "${LD_FLAGS} -I/usr/local/src/c-toxcore/_build")
 
 add_library(tox MODULE
     src/twc.c

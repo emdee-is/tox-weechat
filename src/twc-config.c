@@ -53,6 +53,8 @@ char *twc_profile_option_names[TWC_PROFILE_NUM_OPTIONS] = {
     "passphrase",
     "logging",
     "downloading_path",
+    "local_discovery_enabled",
+    "dht_announcements_enabled",
 };
 
 /**
@@ -283,11 +285,11 @@ twc_config_init_option(struct t_twc_profile *profile,
             break;
         case TWC_PROFILE_OPTION_PROXY_TYPE:
             type = "integer";
-            description = "proxy type; requires profile reload to take effect";
-            string_values = "none|socks5|http";
+            description = "proxy type (none=0|http=1||socks5=2); requires profile reload to take effect";
+            /* string_values = "none|socks5|http"; */
             min = 0;
-            max = 0;
-            default_value = "none";
+            max = 2;
+            default_value = 0; /* "none"; */
             break;
         case TWC_PROFILE_OPTION_SAVEFILE:
             type = "string";
@@ -300,12 +302,27 @@ twc_config_init_option(struct t_twc_profile *profile,
             description = "use UDP when communicating with the Tox network";
             default_value = "on";
             break;
+        case TWC_PROFILE_OPTION_LAN_DISCOVERY:
+            type = "boolean";
+            description = "look for nodes on the local lan";
+            default_value = "off";
+            break;
         case TWC_PROFILE_OPTION_DOWNLOADING_PATH:
             type = "string";
             description =
                 "path to downloaded files (\"%h\" will be replaced by "
                 "WeeChat home folder and \"%p\" by profile name";
             default_value = "%h/tfer/%p/";
+            break;
+        case TWC_PROFILE_OPTION_DHT_ANNOUNCEMENTS_ENABLED:
+            type = "boolean";
+            description = "dht announcements enabled";
+            default_value = "on";
+            break;
+        case TWC_PROFILE_OPTION_HOLE_PUNCHING_ENABLED:
+            type = "boolean";
+            description = "hole_punching_enabled";
+            default_value = "off";
             break;
         default:
             return NULL;

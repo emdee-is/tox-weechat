@@ -1396,9 +1396,10 @@ twc_cmd_send(const void *pointer, void *data, struct t_gui_buffer *buffer,
     free(stripped_name);
     if (error != TOX_ERR_FILE_SEND_OK)
     {
-        weechat_printf(profile->buffer, "%ssending \"%s\" has been failed: %s",
+        weechat_printf(profile->buffer, "%ssending \"%s\" has been failed: %d",
                        weechat_prefix("error"), filename,
-                       twc_tox_err_file_send(error));
+			/*                        twc_tox_err_file_send */
+                       error);
         return WEECHAT_RC_ERROR;
     }
     if (!(profile->tfer->buffer))
@@ -1427,7 +1428,7 @@ twc_cmd_send(const void *pointer, void *data, struct t_gui_buffer *buffer,
 void
 twc_commands_init()
 {
-    weechat_hook_command("bootstrap", "manage bootstrap nodes",
+    weechat_hook_command("bootstrap", "manage bootstrap nodes (see also /friend, /conf, /invite, /me, /msg, /myid, /name, /names, /nospam, /part, /status, /statusmsg, /topic, /tox, /send)",
                          "connect <address> <port> <Tox ID>"
 			 " || relay <address> <port> <Tox ID>",
                          "address: internet address of node to bootstrap with\n"
@@ -1437,7 +1438,7 @@ twc_commands_init()
 			 " || relay",
 			 twc_cmd_bootstrap, NULL, NULL);
 
-    weechat_hook_command("friend", "manage friends",
+    weechat_hook_command("friend", "manage friends (see also /bootstrap, /conf, /invite, /me, /msg, /myid, /name, /names, /nospam, /part, /status, /statusmsg, /topic, /tox, /send)",
                          "list"
                          " || add [-force] <address> [<message>]"
                          " || remove <number>|<name>|<Tox ID>"
@@ -1457,7 +1458,7 @@ twc_commands_init()
                          " || decline",
                          twc_cmd_friend, NULL, NULL);
 
-    weechat_hook_command("conf", "manage conf chats",
+    weechat_hook_command("conf", "manage conf chats (see also /bootstrap, /friend, /invite, /me, /msg, /myid, /name, /names, /nospam, /part, /status, /statusmsg, /topic, /tox, /send)",
                          "create"
                          " || invites"
                          " || join <number>"
@@ -1472,62 +1473,62 @@ twc_commands_init()
                          twc_cmd_conf, NULL, NULL);
 
     weechat_hook_command(
-        "invite", "invite someone to a conf chat", "<number>|<name>|<Tox ID>",
+        "invite", "invite someone to a conf chat (see also /bootstrap, /friend, /me, /msg, /myid, /name, /names, /nospam, /part, /status, /statusmsg, /topic, /tox, /send)", "<number>|<name>|<Tox ID>",
         "number, name, Tox ID: friend to message\n",
         "%(tox_friend_name)|%(tox_friend_tox_id)", twc_cmd_invite, NULL, NULL);
 
-    weechat_hook_command("me", "send an action to the current chat",
+    weechat_hook_command("me", "send an action to the current chat (see also /bootstrap, /friend, /conf, /invite, /msg, /myid, /name, /names, /nospam, /part, /status, /statusmsg, /topic, /tox, /send)",
                          "<message>", "message: message to send", NULL,
                          twc_cmd_me, NULL, NULL);
 
-    weechat_hook_command("msg", "send a message to a Tox friend",
+    weechat_hook_command("msg", "send a message to a Tox friend (see also /bootstrap, /friend, /conf, /invite, /me, /myid, /name, /names, /nospam, /part, /status, /statusmsg, /topic, /tox, /send)",
                          "<number>|<name>|<Tox ID> [<message>]",
                          "number, name, Tox ID: friend to message\n"
                          "message: message to send",
                          "%(tox_friend_name)|%(tox_friend_tox_id)", twc_cmd_msg,
                          NULL, NULL);
 
-    weechat_hook_command("query", "send a message to a Tox friend",
+    weechat_hook_command("query", "send a message to a Tox friend (see also /bootstrap, /friend, /conf, /invite, /me, /msg, /myid, /name, /names, /nospam, /part, /status, /statusmsg, /topic, /tox, /send)",
                          "<number>|<name>|<Tox ID> [<message>]",
                          "number, name, Tox ID: friend to message\n"
                          "message: message to send",
                          "%(tox_friend_name)|%(tox_friend_tox_id)", twc_cmd_msg,
                          NULL, NULL);
 
-    weechat_hook_command("myid", "get your Tox ID to give to friends", "", "",
+    weechat_hook_command("myid", "get your Tox ID to give to friends  (see also /bootstrap, /friend, /conf, /invite, /me, /msg, /name, /names, /nospam, /part, /status, /statusmsg, /topic, /tox, /send)", "", "",
                          NULL, twc_cmd_myid, NULL, NULL);
 
-    weechat_hook_command("name", "change your Tox name", "<name>",
+    weechat_hook_command("name", "change your Tox name  (see also /bootstrap, /friend, /conf, /invite, /me, /msg, /myid, /names, /nospam, /part, /status, /statusmsg, /topic, /tox, /send)", "<name>",
                          "name: your new name", NULL, twc_cmd_name, NULL, NULL);
 
-    weechat_hook_command("names", "list names in a conf chat", "", "", NULL,
+    weechat_hook_command("names", "list names in a conf chat  (see also /bootstrap, /friend, /conf, /invite, /me, /msg, /myid, /name, /nospam, /part, /status, /statusmsg, /topic, /tox, /send)", "", "", NULL,
                          twc_cmd_names, NULL, NULL);
 
-    weechat_hook_command("nospam", "change nospam value", "[<hex value>]",
+    weechat_hook_command("nospam", "change nospam value  (see also /bootstrap, /friend, /conf, /invite, /me, /msg, /myid, /name, /names, /part, /status, /statusmsg, /topic, /tox, /send)", "[<hex value>]",
                          "hex value: new nospam value; when omitted, a random "
                          "new value is used\n\n"
                          "Warning: changing your nospam value will alter your "
                          "Tox ID!",
                          NULL, twc_cmd_nospam, NULL, NULL);
 
-    weechat_hook_command("part", "leave a conf chat", "", "", NULL,
+    weechat_hook_command("part", "leave a conf chat (see also /bootstrap, /friend, /conf, /invite, /me, /msg, /myid, /name, /names, /nospam, /status, /statusmsg, /topic, /tox, /send)", "", "", NULL,
                          twc_cmd_part, NULL, NULL);
 
-    weechat_hook_command_run("/save", twc_cmd_save, NULL, NULL);
+    weechat_hook_command_run("/save  (see also /bootstrap, /friend, /conf, /invite, /me, /msg, /myid, /name, /names, /nospam, /part, /status, /statusmsg, /topic, /tox, /send)", twc_cmd_save, NULL, NULL);
 
-    weechat_hook_command("status", "change your Tox status", "online|busy|away",
+    weechat_hook_command("status", "change your Tox status  (see also /bootstrap, /friend, /conf, /invite, /me, /msg, /myid, /name, /names, /nospam, /part, /statusmsg, /topic, /tox, /send)", "online|busy|away",
                          "", NULL, twc_cmd_status, NULL, NULL);
 
-    weechat_hook_command("statusmsg", "change your Tox status message",
+    weechat_hook_command("statusmsg", "change your Tox status message  (see also /bootstrap, /friend, /conf, /invite, /me, /msg, /myid, /name, /names, /nospam, /part, /status, /topic, /tox, /send)",
                          "[<message>]", "message: your new status message",
                          NULL, twc_cmd_statusmsg, NULL, NULL);
 
-    weechat_hook_command("topic", "set a conf chat topic", "<topic>",
+    weechat_hook_command("topic", "set a conf chat topic  (see also /bootstrap, /friend, /conf, /invite, /me, /msg, /myid, /name, /names, /nospam, /part, /status, /statusmsg, /tox, /send)", "<topic>",
                          "topic: new conf chat topic", NULL, twc_cmd_topic,
                          NULL, NULL);
-
+  
     weechat_hook_command(
-        "tox", "manage Tox profiles",
+        "tox", "manage Tox profiles (see also /bootstrap, /friend, /conf, /invite, /me, /msg, /myid, /name, /names, /nospam, /part, /status, /statusmsg, /topic, /send)",
         "list"
         " || create <name>"
         " || delete <name> -yes|-keepdata"
@@ -1550,7 +1551,7 @@ twc_commands_init()
         " || reload %(tox_loaded_profiles)|%*",
         twc_cmd_tox, NULL, NULL);
     weechat_hook_command(
-        "send", "send a file to a friend",
+        "send", "send a file to a friend (see also /bootstrap, /friend, /conf, /invite, /me, /msg, /myid, /name, /names, /nospam, /part, /status, /statusmsg, /topic, /tox)",
         "<file>"
         " || <number>|<name>|<Tox ID> <file>",
         "file: path to the file\n"

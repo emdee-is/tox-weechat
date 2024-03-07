@@ -198,11 +198,11 @@ twc_profile_set_options(struct Tox_Options *options,
         case TWC_PROXY_NONE:
             options->proxy_type = TOX_PROXY_TYPE_NONE;
             break;
-        case TWC_PROXY_SOCKS5:
-            options->proxy_type = TOX_PROXY_TYPE_SOCKS5;
-            break;
         case TWC_PROXY_HTTP:
             options->proxy_type = TOX_PROXY_TYPE_HTTP;
+            break;
+        case TWC_PROXY_SOCKS5:
+            options->proxy_type = TOX_PROXY_TYPE_SOCKS5;
             break;
     }
 
@@ -212,6 +212,12 @@ twc_profile_set_options(struct Tox_Options *options,
         TWC_PROFILE_OPTION_BOOLEAN(profile, TWC_PROFILE_OPTION_UDP);
     options->ipv6_enabled =
         TWC_PROFILE_OPTION_BOOLEAN(profile, TWC_PROFILE_OPTION_IPV6);
+    options->local_discovery_enabled =
+        TWC_PROFILE_OPTION_BOOLEAN(profile, TWC_PROFILE_OPTION_LAN_DISCOVERY);
+    options->dht_announcements_enabled =
+        TWC_PROFILE_OPTION_BOOLEAN(profile, TWC_PROFILE_OPTION_DHT_ANNOUNCEMENTS_ENABLED);
+    options->hole_punching_enabled =
+        TWC_PROFILE_OPTION_BOOLEAN(profile, TWC_PROFILE_OPTION_HOLE_PUNCHING_ENABLED);
 
 #ifndef NDEBUG
     options->log_callback = twc_tox_log_callback;
@@ -248,7 +254,7 @@ twc_tox_new_print_error(struct t_twc_profile *profile,
             break;
         case TOX_ERR_NEW_PROXY_BAD_PORT:
             weechat_printf(profile->buffer,
-                           "%scould not load Tox (invalid proxy port: \"%"
+                           "%scould not load Tox (invalid proxy port: \"%d"
                            PRIu16 "\")",
                            weechat_prefix("error"), options->proxy_port);
             break;
@@ -318,7 +324,7 @@ twc_profile_load(struct t_twc_profile *profile)
     /* print a proxy message */
     if (options.proxy_type != TOX_PROXY_TYPE_NONE)
     {
-        weechat_printf(profile->buffer, "%susing %s proxy %s:%" PRIu16,
+        weechat_printf(profile->buffer, "%susing %s proxy %s:%d" PRIu16,
                        weechat_prefix("network"),
                        options.proxy_type == TOX_PROXY_TYPE_HTTP
                            ? "HTTP"
@@ -331,8 +337,7 @@ twc_profile_load(struct t_twc_profile *profile)
                            "but UDP is not disabled. Your IP address may not "
                            "be hidden.",
                            weechat_prefix("error"), weechat_color("lightred"),
-                           weechat_color("reset"), options.proxy_host,
-                           options.proxy_port);
+                           weechat_color("reset"));
     }
 
     /* try loading data file */
@@ -709,11 +714,11 @@ twc_profile_free(struct t_twc_profile *profile)
     twc_group_chat_invite_free_list(profile->group_chat_invites);
     twc_tfer_free(profile->tfer);
     twc_message_queue_free_profile(profile);
-    free(profile->name);
-    free(profile);
 
     /* remove from list */
     twc_list_remove_with_data(twc_profiles, profile);
+    free(profile->name);
+    free(profile);
 }
 
 /**
