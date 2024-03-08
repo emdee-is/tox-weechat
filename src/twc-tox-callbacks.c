@@ -796,12 +796,17 @@ twc_tox_log_callback(Tox *tox, TOX_LOG_LEVEL level, const char *file,
     {
         case TOX_LOG_LEVEL_TRACE:
             color = weechat_color("gray");
+	    if (weechat_strcasecmp(file, "network.c") == 0)
+	      return;
+	    if (weechat_strcasecmp(file, "onion_client.c") == 0 &&
+		weechat_strcasecmp(file, "onion_isconnected") != 0)
+	      return;
             break;
         case TOX_LOG_LEVEL_DEBUG:
             color = weechat_color("white");
             break;
         case TOX_LOG_LEVEL_INFO:
-            color = weechat_color("lightblue");
+            color = weechat_color("lightgreen");
             break;
         case TOX_LOG_LEVEL_WARNING:
             color = weechat_color("yellow");

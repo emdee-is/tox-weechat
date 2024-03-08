@@ -231,6 +231,16 @@ twc_cmd_bootstrap(const void *pointer, void *data, struct t_gui_buffer *buffer,
       } else if (argc > 2 && strlen(argv[2]) > 0) {
 	if (weechat_strcasecmp(argv[2], "0") == 0) {
 	  TOX_CONNECTION status;
+	  if (!(profile)) {
+	    weechat_printf(profile->buffer, "%sInvalid profile.",
+			   weechat_prefix("error"));
+	    return WEECHAT_RC_OK;
+	  }
+	  if (!(profile->tox)) {
+	    weechat_printf(profile->buffer, "%sInvalid tox in profile.",
+			   weechat_prefix("error"));
+	    return WEECHAT_RC_OK;
+	  }
 	  status = tox_self_get_connection_status(profile->tox);
 	  if ( status == TOX_CONNECTION_NONE) {
             weechat_printf(profile->buffer,
@@ -285,6 +295,18 @@ twc_cmd_bootstrap(const void *pointer, void *data, struct t_gui_buffer *buffer,
       } else if (argc > 2 && strlen(argv[2]) > 0) {
 	if (weechat_strcasecmp(argv[2], "0") == 0) {
 	  TOX_CONNECTION status;
+	  if (!(profile)) {
+            weechat_printf(profile->buffer,
+                           "%sNo profile.",
+                           weechat_prefix("network"));
+	    return WEECHAT_RC_OK;
+	  }
+	  if (!(profile->tox)) {
+            weechat_printf(profile->buffer,
+                           "%sNo tox in profile.",
+                           weechat_prefix("network"));
+	    return WEECHAT_RC_OK;
+	  }
 	  status = tox_self_get_connection_status(profile->tox);
 	  if ( status == TOX_CONNECTION_NONE) {
             weechat_printf(profile->buffer,
@@ -557,8 +579,19 @@ twc_cmd_friend(const void *pointer, void *data, struct t_gui_buffer *buffer,
         {
             char *endptr;
             unsigned long num = strtoul(argv[2], &endptr, 10);
-            if (endptr == argv[2] ||
-                (request = twc_friend_request_with_index(profile, num)) == NULL)
+            if (endptr == argv[2])
+            {
+                weechat_printf(profile->buffer, "%sInvalid friend request ID.",
+                               weechat_prefix("error"));
+                return WEECHAT_RC_OK;
+            }
+	    if (!(profile))
+            {
+                weechat_printf(profile->buffer, "%sInvalid profile.",
+                               weechat_prefix("error"));
+                return WEECHAT_RC_OK;
+            }
+	    if ((request = twc_friend_request_with_index(profile, num)) == NULL)
             {
                 weechat_printf(profile->buffer, "%sInvalid friend request ID.",
                                weechat_prefix("error"));
