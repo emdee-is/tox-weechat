@@ -15,6 +15,8 @@ Tox-WeeChat is compliant with all "Required" points in the
  - Encrypted save files
  - File transfer
 
+No NGC groups yet.
+
 ## Installation
 
 Tox-WeeChat requires [WeeChat][2] (tested with version 4.1.2) and [TokTok
@@ -49,6 +51,7 @@ an example.
    `/set tox.*` for a list of options, including proxies.
 
 ### Common issues
+
 #### Long Tox names messing up WeeChat layout
 
 Tox allows names up to 128 bytes long. To prevent long names from taking all

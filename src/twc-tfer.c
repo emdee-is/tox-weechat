@@ -661,6 +661,8 @@ twc_tfer_file_send_control(struct t_twc_profile *profile, size_t index,
         twc_tfer_file_update(profile->tfer, file);
         return 1;
     }
+    /* proforma */
+    return 0;
 }
 
 /**
