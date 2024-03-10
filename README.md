@@ -92,6 +92,6 @@ along with Tox-WeeChat.  If not, see <http://www.gnu.org/licenses/>.
 ---
 
 This is a hard fork of https://github.com/haavard/tox-weechat/
-now at https://git.macaw.me/emdee/tox-weechat You can also run weechat under
-toxygen https://git.macaw.me/emdee/toxygen using qweechat 
-https://git.macaw.me/emdee/qweechat
+now at https://git.plastiras.org/emdee/tox-weechat You can also run weechat under
+toxygen https://git.plastiras.org/emdee/toxygen using qweechat 
+https://git.plastiras.org/emdee/qweechat
